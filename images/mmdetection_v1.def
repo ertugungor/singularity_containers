@@ -1,0 +1,51 @@
+Bootstrap: docker
+From: pytorch/pytorch:1.10.0-cuda11.3-cudnn8-devel
+Stage: spython-base
+
+%post
+PYTORCH="1.10.0"
+CUDA="11.3"
+CUDNN="8"
+
+
+TORCH_CUDA_ARCH_LIST="6.0 6.1 7.0+PTX 8.6"
+TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
+CMAKE_PREFIX_PATH="$(dirname $(which conda))/../"
+
+apt-get update && apt-get install -y \
+ffmpeg  \
+git \
+ninja-build \
+libglib2.0-0 \
+libsm6 \
+libxext6 \
+libxrender-dev \
+unzip \
+wget \
+&& apt-get clean \
+&& rm -rf /var/lib/apt/lists/*
+
+# Install MMCV
+pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.10.0/index.html
+
+# Install MMDetection
+conda clean --all
+git clone https://github.com/open-mmlab/mmdetection.git /mmdetection
+cd /mmdetection
+FORCE_CUDA="1"
+pip install -r requirements/build.txt
+pip install --no-cache-dir -e .
+
+pip install git+https://github.com/lvis-dataset/lvis-api.git
+%environment
+export TORCH_CUDA_ARCH_LIST="6.0 6.1 7.0+PTX 8.6"
+export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
+export CMAKE_PREFIX_PATH="$(dirname $(which conda))/../"
+export FORCE_CUDA="1"
+%runscript
+cd /mmdetection
+exec /bin/bash "$@"
+%startscript
+cd /mmdetection
+exec /bin/bash "$@"
+
