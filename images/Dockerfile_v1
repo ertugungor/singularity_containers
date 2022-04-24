@@ -32,5 +32,10 @@ ENV FORCE_CUDA="1"
 RUN pip install -r requirements/build.txt
 RUN pip install --no-cache-dir -e .
 
+WORKDIR /tmp
 RUN pip install git+https://github.com/lvis-dataset/lvis-api.git
+
+# No installation for now, use local package
+# ENV PYTHONPATH="/dev/singularity_containers/LRP-Error/pycocotools/"
+ENV PYTHONPATH="/workspace/dev/LRP-Error/pycocotools"
 

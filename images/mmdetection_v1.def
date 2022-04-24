@@ -36,16 +36,22 @@ FORCE_CUDA="1"
 pip install -r requirements/build.txt
 pip install --no-cache-dir -e .
 
+cd /tmp
 pip install git+https://github.com/lvis-dataset/lvis-api.git
+
+# No installation for now, use local package
+PYTHONPATH="/workspace/dev/LRP-Error/pycocotools"
+
 %environment
 export TORCH_CUDA_ARCH_LIST="6.0 6.1 7.0+PTX 8.6"
 export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
 export CMAKE_PREFIX_PATH="$(dirname $(which conda))/../"
 export FORCE_CUDA="1"
+export PYTHONPATH="/workspace/dev/LRP-Error/pycocotools"
 %runscript
-cd /mmdetection
+cd /tmp
 exec /bin/bash "$@"
 %startscript
-cd /mmdetection
+cd /tmp
 exec /bin/bash "$@"
 
